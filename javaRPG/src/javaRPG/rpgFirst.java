@@ -3,6 +3,17 @@ package javaRPG;
 import java.util.Scanner;
 public class rpgFirst {
 	
+	public static void pressEnterToContinue()
+	 { 
+	        System.out.println("Press \"Enter\" to continue...");
+	        try
+	        {
+	            System.in.read();
+	        }  
+	        catch(Exception e)
+	        {}  
+	 }
+	
 	public static void main( String args[] ) {
 		
 		class Character{
@@ -345,7 +356,8 @@ public class rpgFirst {
 		System.out.println( "Defense: " + hero1.getDefense() );
 		System.out.println( "Agility: " +hero1.getAgility() );
 
-		command = in.nextLine();
+		pressEnterToContinue();
+        command = in.nextLine();
 		
         System.out.println("\nNow, please select which quest you would like to attend to! (Respond with '1', '2', or '3')");
         System.out.println("1) The Quest for the Dragon's Claw");
@@ -361,7 +373,8 @@ public class rpgFirst {
         if( command.equals("1") ) {
         	System.out.println("\nYou have chosen to embark on The Quest for the Dragon's Claw!");
         	
-        	command = in.nextLine();
+        	pressEnterToContinue();
+	        command = in.nextLine();
         	
         	System.out.println("\nThere has been a rumor circulating around town that there is a formidable evil to the north." +
         						"\nFarm animals, pets, and even small children have gone missing over the past 3 weeks when" +
@@ -369,36 +382,28 @@ public class rpgFirst {
         						"\ntasked you to take it out, and if you return with evidence of its defeat, you will surely be" +
         						"\nrewarded handsomely.");
         	
-        	command = in.nextLine();
+        	pressEnterToContinue();
+	        command = in.nextLine();
         	
         	System.out.println("\nOne of the king's guards leads you to the northern trail.  From there you must walk alone." +
         					   "\nThe guard wishes you luck, and you head on your way up the trail.");
         	
-        	try {
-                Thread.sleep(7500);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+        	pressEnterToContinue();
+	        command = in.nextLine();
         	
         	
         	System.out.println("\nNot before long, you encounter what appears to be one of the ragged goblins that inhabit the" +
         					   "\nnearby cliffside.  Not a particularly difficult combatant, but it is your first true test.");
         	
-        	try {
-                Thread.sleep(7500);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+        	pressEnterToContinue();
+	        command = in.nextLine();
         	
         	Character goblin = new Character( 16.0, 8.0, 2.0 );
         	
         	System.out.println("\nYou have now engaged in combat with a goblin! (100 hit points)\n");
             
-            try {
-                Thread.sleep(4000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+        	pressEnterToContinue();
+	        command = in.nextLine();
             
             if( hero1.fight( goblin )) {
             	System.out.println("You defeated the goblin!");
@@ -409,11 +414,8 @@ public class rpgFirst {
             
             System.out.println( "You are now at " + hero1.getHealth() + " hit points!" );
         	
-            try {
-                Thread.sleep(3000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            pressEnterToContinue();
+	        command = in.nextLine();
             
             hero1.levelUpInitial();
             command = in.nextLine();
@@ -504,11 +506,9 @@ public class rpgFirst {
 	            	command = in.nextLine();
 	            }
 	        }
-	        try {
-                Thread.sleep(4000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+
+	        pressEnterToContinue();
+	        command = in.nextLine();
 
             System.out.println("\nYou continue along the path until you see a startled villager running towards you.  He");
             System.out.println("begins yelling and mumbling 'Help! Help!'  He begins to describe what he had just heard.");
@@ -543,11 +543,8 @@ public class rpgFirst {
         	
         	System.out.println("\nYou have now engaged in combat with the bandit! (100 hit points)\n");
             
-            try {
-                Thread.sleep(4000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+        	pressEnterToContinue();
+	        command = in.nextLine();
             
             if( hero1.fight( bandit )) {
             	System.out.println("You defeated the bandit!");
@@ -564,11 +561,8 @@ public class rpgFirst {
         	System.out.println("\nYou have chosen to embark on The Quest for the Silver Sgian-dubh!");
         }
         
-        try {
-            Thread.sleep(2000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        pressEnterToContinue();
+        command = in.nextLine();
         
         in.close();
 	}
