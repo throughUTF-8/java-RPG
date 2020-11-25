@@ -3,16 +3,13 @@ package javaRPG;
 import java.util.Scanner;
 public class rpgFirst {
 	
-	public static void pressEnterToContinue()
-	 { 
-	        System.out.println("Press \"Enter\" to continue...");
-	        try
-	        {
-	            System.in.read();
-	        }  
-	        catch(Exception e)
-	        {}  
-	 }
+	public static void pressEnterToContinue(){ 
+		System.out.println("Press \"Enter\" to continue...");
+		try{
+		    System.in.read();
+		} catch(Exception e)
+		{}
+	}
 	
 	public static void main( String args[] ) {
 		
@@ -30,37 +27,129 @@ public class rpgFirst {
 				myAgility = agility;
 			}
 			
+			/* This method calculates the chance that the hero lands a critical hit on the enemy during
+			* an attack.  Gives a higher chance to land a critical hit to heroes with higher agility.
+			* The calculation is a % to land a critical hit increased for each point in the hero's agility.
+			* @return boolean This returns whether the hit was a critical hit. */
+			public boolean isCritChance() {
+				return Math.random()*100 <= myAgility;
+			}
+			/* This method calculates the hero's attack damage when a critical hit is landed.  The hit will
+			* deal a randomized amount between 75% and 150% of the hero's strength.
+			* @return double This returns the attack damage during a critical hit. */
+			public double critAttackDamage() {
+				return (Math.random()*.75*myStrength) + .75*myStrength;
+			}
+			/* This method calculates the enemy's damage blocked when a critical hit is landed.  The block
+			* will negate a randomized amount between 12.5% and 25% of the enemy's defense.
+			* @param enemyDefense This is the enemy's defense which is provided during combat.
+			* @return double This returns the damage blocked during a critical hit. */
+			public double critBlockedDamage( double enemyDefense ) {
+				return (Math.random()*.125*enemyDefense) + .125*enemyDefense;
+			}
+			/* This method calculates the hero's attack damage when a regular hit is landed.  The hit will
+			* deal a randomized amount between 50% and 100% of the hero's strength.
+			* @return double This returns the attack damage during a regular hit. */
+			public double attackDamage() {
+				return (Math.random()*.5*myStrength) + .5*myStrength;
+			}
+			/* This method calculates the enemy's damage blocked when a regular hit is landed.  The block
+			* will negate a randomized amount between 25% and 50% of the enemy's defense.
+			* @param enemyDefense This is the enemy's defense which is provided during combat.
+			* @return double This returns the damage blocked during a critical hit. */
+			public double blockedDamage( double enemyDefense ) {
+				return (Math.random()*.25*enemyDefense) + .25*enemyDefense;
+			}
+			/* This method calculates the chance that the enemy lands a critical hit during an attempted
+			* counter-attack.  Gives a higher chance to land a critical hit to an enemy's with higher agility.
+			* The calculation is a halved % to land a critical hit increased for each point in the hero's agility.
+			* @param enemyAgility This is the enemy's agility which is provided during combat.
+			* @return boolean This returns whether the counter-attack was a critical hit. */
+			public boolean isCounterCritChance( double enemyAgility ) {
+				return (Math.random()*100) <= .5*enemyAgility;
+			}
+			/* This method calculates the enemy's attack damage when a critical counter-attack is landed.  The 
+			* counter-attack will deal a randomized amount between 35% and 70% of the enemy's strength.
+			* @param enemyStrength This is the enemy's strength which is provided during combat.
+			* @return double This returns the attack damage during a critical counter-attack. */
+			public double counterCritDamage( double enemyStrength ) {
+				return (Math.random()*.35*enemyStrength) + .35*enemyStrength;
+			}
+			/* This method calculates the the hero's damage blocked when a critical counter-attack is landed.  
+			* The block will negate a randomized amount between 15% and 30% of the enemy's defense.
+			* @return double This returns the damage blocked during a critical counter-attack. */
+			public double counterCritBlockedDamage() {
+				return (.15*myDefense + Math.random()*.15*myDefense);
+			}
+			/* This method calculates the enemy's attack damage when a regular counter-attack is landed.  The 
+			* counter-attack will deal a randomized amount between 15% and 30% of the enemy's strength.
+			* @param enemyStrength This is the enemy's strength which is provided during combat.
+			* @return double This returns the attack damage during a regular counter-attack. */
+			public double counterAttackDamage( double enemyStrength ) {
+				return .15*enemyStrength + Math.random()*.15*enemyStrength;
+			}
+			/* This method calculates the the hero's damage blocked when a regular counter-attack is landed.  
+			* The block will negate a randomized amount between 5% and 10% of the enemy's defense.
+			* @return double This returns the damage blocked during a regular counter-attack. */
+			public double counterBlockedDamage() {
+				return (Math.random()*.05*myDefense) + .05*myDefense;
+			}
+			/* This method calculates the chance that the enemy dodges the hero's attack.  Gives a higher chance
+			* to dodge to enemies with higher agility.
+			* The calculation is a % to land a critical hit increased for each point in the hero's agility.
+			* @return boolean This returns whether the hit was a critical hit. */
+			public boolean isDodge( double enemyAgility ) {
+				return Math.random()*100 <= enemyAgility - .5*myAgility;
+			}
+			public boolean isCounterDodge( double enemyAgility ) {
+				return Math.random()*100 <= 2*myAgility - enemyAgility;
+			}
+			
+			
+			
 			//Calculations for attack sequence.  outputs: ( damage done, dodged?, damage received, dodged? )
 			public double[] attack( double myStrength, double myDefense, double myAgility,
-									double eStrength, double eDefense, double eAgility ) {
-				double[] damage = new double[6];
-				damage = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+									double enemyStrength, double enemyDefense, double enemyAgility ) {
 				
-				//Calculation of damage done and counter-attack damage... considers critical strike chance
-				if( Math.random()*(100 - myAgility) < 5 ) {
-					damage[0] = (Math.random()*.75*myStrength + .75*myStrength) - (.125*eDefense + (Math.random()*.125*eDefense));
+				double[] damage = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+				
+				//Calculation of damage done and counter-attack damage
+				//Is the attack a critical hit?
+				if( isCritChance() ) {
+					//Damage done during a critical hit
+					damage[0] = critAttackDamage() - critBlockedDamage( enemyDefense );
+					//Was a critical hit, will be referred to for combat text
 					damage[2] = 1.0;
+				//The attack was not a critical hit
 				} else {
-					damage[0] = (.5*myStrength + Math.random()*.5*myStrength) - (.25*eDefense + Math.random()*.25*eDefense);
+					//Damage done during a regular hit
+					damage[0] = attackDamage() - blockedDamage( enemyDefense );
 				}
-				if( Math.random()*(100 - eAgility + myAgility) < 4 ) {
-					damage[3] = (.35*eStrength + Math.random()*.35*eStrength) - (.15*myDefense + Math.random()*.15*myDefense);
+				//Is the counter-attack a critical hit?
+				if( isCounterCritChance( enemyAgility ) ) {
+					//Damage done during a critical counter-attack
+					damage[3] = counterCritDamage( enemyStrength ) - counterCritBlockedDamage();
+					//Was a critical counter-attack, will referred to for combat text
 					damage[5] = 1.0;
+				//The counter-attack was not a critical hit
 				} else {
-					damage[3] = (.15*eStrength + Math.random()*.15*eStrength) - (.05*myDefense + Math.random()*.05*myDefense);
+					//Damage done during a regular counter-attack
+					damage[3] = counterAttackDamage( enemyStrength ) - counterBlockedDamage();
 				}
 				
 				//Calculates whether the enemy or you dodges the attack or counter-attack
-				if( Math.random()*(100 + myAgility - 2*eAgility) < 5 ) {
+				//Did the enemy dodge your attack?
+				if( isDodge( enemyAgility ) ) {
+					//Yes
 					damage[1] = 1.0;
-				} else {
-					damage[1] = 0.0;
-				}
-				if( Math.random()*(100 - 5*myAgility + eAgility) < 5 ) {
+				//No
+				} else {}
+				//Did you dodge the enemy's counter-attack?
+				if( isCounterDodge( enemyAgility ) ) {
+					//Yes
 					damage[4] = 1.0;
-				} else {
-					damage[4] = 0.0;
-				}
+				//No
+				} else {}
 				
 				return damage;
 			}
@@ -91,9 +180,9 @@ public class rpgFirst {
 			public boolean deadTest() {
 				if( getHealth() <= 0 ) {
 					return true;
-				} else {
-					return false;
 				}
+				return false;
+				
 			}
 		}
 		
@@ -357,7 +446,6 @@ public class rpgFirst {
 		System.out.println( "Agility: " +hero1.getAgility() );
 
 		pressEnterToContinue();
-        command = in.nextLine();
 		
         System.out.println("\nNow, please select which quest you would like to attend to! (Respond with '1', '2', or '3')");
         System.out.println("1) The Quest for the Dragon's Claw");
@@ -374,7 +462,6 @@ public class rpgFirst {
         	System.out.println("\nYou have chosen to embark on The Quest for the Dragon's Claw!");
         	
         	pressEnterToContinue();
-	        command = in.nextLine();
         	
         	System.out.println("\nThere has been a rumor circulating around town that there is a formidable evil to the north." +
         						"\nFarm animals, pets, and even small children have gone missing over the past 3 weeks when" +
@@ -383,27 +470,23 @@ public class rpgFirst {
         						"\nrewarded handsomely.");
         	
         	pressEnterToContinue();
-	        command = in.nextLine();
         	
         	System.out.println("\nOne of the king's guards leads you to the northern trail.  From there you must walk alone." +
         					   "\nThe guard wishes you luck, and you head on your way up the trail.");
         	
         	pressEnterToContinue();
-	        command = in.nextLine();
         	
         	
         	System.out.println("\nNot before long, you encounter what appears to be one of the ragged goblins that inhabit the" +
         					   "\nnearby cliffside.  Not a particularly difficult combatant, but it is your first true test.");
         	
         	pressEnterToContinue();
-	        command = in.nextLine();
         	
         	Character goblin = new Character( 16.0, 8.0, 2.0 );
         	
         	System.out.println("\nYou have now engaged in combat with a goblin! (100 hit points)\n");
             
         	pressEnterToContinue();
-	        command = in.nextLine();
             
             if( hero1.fight( goblin )) {
             	System.out.println("You defeated the goblin!");
@@ -415,7 +498,6 @@ public class rpgFirst {
             System.out.println( "You are now at " + hero1.getHealth() + " hit points!" );
         	
             pressEnterToContinue();
-	        command = in.nextLine();
             
             hero1.levelUpInitial();
             command = in.nextLine();
@@ -508,7 +590,6 @@ public class rpgFirst {
 	        }
 
 	        pressEnterToContinue();
-	        command = in.nextLine();
 
             System.out.println("\nYou continue along the path until you see a startled villager running towards you.  He");
             System.out.println("begins yelling and mumbling 'Help! Help!'  He begins to describe what he had just heard.");
@@ -544,7 +625,6 @@ public class rpgFirst {
         	System.out.println("\nYou have now engaged in combat with the bandit! (100 hit points)\n");
             
         	pressEnterToContinue();
-	        command = in.nextLine();
             
             if( hero1.fight( bandit )) {
             	System.out.println("You defeated the bandit!");
@@ -560,9 +640,6 @@ public class rpgFirst {
         } else if( command.equals("3") ) {
         	System.out.println("\nYou have chosen to embark on The Quest for the Silver Sgian-dubh!");
         }
-        
-        pressEnterToContinue();
-        command = in.nextLine();
         
         in.close();
 	}
