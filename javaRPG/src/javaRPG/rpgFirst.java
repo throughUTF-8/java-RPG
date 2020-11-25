@@ -1,7 +1,10 @@
 package javaRPG;
 
+import java.text.DecimalFormat;
 import java.util.Scanner;
 public class rpgFirst {
+	
+	public static DecimalFormat dv = new DecimalFormat("###.#");
 	
 	public static void pressEnterToContinue(){ 
 		System.out.println("Press \"Enter\" to continue...");
@@ -121,17 +124,17 @@ public class rpgFirst {
 						if( damage <= 0) {
 							System.out.println( getName() + " landed a critical hit but it didn't deal any damage!" );
 						} else {
-							System.out.println( getName() + " landed a critical hit and dealt " + (int)(damage * 10)/10 + " damage!" );
+							System.out.println( getName() + " landed a critical hit and dealt " + dv.format(damage) + " damage!" );
 						}
-						return (int)(damage * 10)/10;
+						return Double.parseDouble(dv.format(damage));
 					} else {
 						damage = attackDamage() - blockedDamage( enemy.getDefense() );
 						if( damage <= 0) {
 							System.out.println( getName() + " landed a hit but it didn't deal any damage!" );
 						} else {
-							System.out.println( getName() + " landed a hit and dealt " + (int)(damage * 10)/10 + " damage!" );
+							System.out.println( getName() + " landed a hit and dealt " + dv.format(damage) + " damage!" );
 						}
-						return (int)(damage * 10)/10;
+						return Double.parseDouble(dv.format(damage));
 					}
 				}
 			}
@@ -147,17 +150,17 @@ public class rpgFirst {
 						if( damage <= 0 ) {
 							System.out.println( enemy.getName() + " landed a critical counter-attack but it didn't deal any damage!" );
 						} else {
-							System.out.println( enemy.getName() + " landed a critical counter-attack and dealt " + (int)(damage * 10)/10 + " damage!" );
+							System.out.println( enemy.getName() + " landed a critical counter-attack and dealt " + dv.format(damage) + " damage!" );
 						}
-						return (int)(damage * 10)/10;
+						return Double.parseDouble(dv.format(damage));
 					} else {
 						damage = counterAttackDamage( enemy.getStrength() ) - counterBlockedDamage();
 						if( damage <= 0 ) {
 							System.out.println( enemy.getName() + " landed a counter-attack but it didn't deal any damage!" );
 						} else {
-							System.out.println( enemy.getName() + " landed a counter-attack and dealt " + (int)(damage * 10)/10 + " damage!" );
+							System.out.println( enemy.getName() + " landed a counter-attack and dealt " + dv.format(damage) + " damage!" );
 						}
-						return (int)(damage * 10)/10;
+						return Double.parseDouble(dv.format(damage));
 					}
 				}
 			}
