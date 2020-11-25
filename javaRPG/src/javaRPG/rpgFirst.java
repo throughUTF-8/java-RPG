@@ -20,11 +20,13 @@ public class rpgFirst {
 			public double myStrength;
 			public double myDefense;
 			public double myAgility;
+			public String myName;
 			
-			public Character( double strength, double defense, double agility ) {
+			public Character( String name, double strength, double defense, double agility ) {
 				myStrength = strength;
 				myDefense = defense;
 				myAgility = agility;
+				myName = name;
 			}
 			
 			public double baseAttackPercent = .50;
@@ -108,53 +110,62 @@ public class rpgFirst {
 				return Math.random() * 100 <= (2 * myAgility) - enemyAgility;
 			}
 			
+			public double getAttackDamage( Character enemy ){
+				double damage;
+				if( isDodge( enemy.getAgility() )) {
+					System.out.println( getName() + " missed and didn't deal any damage!" );
+					return  0;
+				} else {
+					if( isCritChance() ) {
+						damage = critAttackDamage() - critBlockedDamage( enemy.getDefense() );
+						if( damage <= 0) {
+							System.out.println( getName() + " landed a critical hit but it didn't deal any damage!" );
+						} else {
+							System.out.println( getName() + " landed a critical hit and dealt " + (int)(damage * 10)/10 + " damage!" );
+						}
+						return (int)(damage * 10)/10;
+					} else {
+						damage = attackDamage() - blockedDamage( enemy.getDefense() );
+						if( damage <= 0) {
+							System.out.println( getName() + " landed a hit but it didn't deal any damage!" );
+						} else {
+							System.out.println( getName() + " landed a hit and dealt " + (int)(damage * 10)/10 + " damage!" );
+						}
+						return (int)(damage * 10)/10;
+					}
+				}
+			}
 			
+			public double getCounterAttackDamage( Character enemy ) {
+				double damage;
+				if( isCounterDodge( enemy.getAgility() )) {
+					System.out.println( enemy.getName() + " missed their counter-attack and didn't deal any damage!" );
+					return 0;
+				} else {
+					if( isCounterCritChance( enemy.getAgility() ) ) {
+						damage = counterCritDamage( enemy.getStrength() ) - counterCritBlockedDamage();
+						if( damage <= 0 ) {
+							System.out.println( enemy.getName() + " landed a critical counter-attack but it didn't deal any damage!" );
+						} else {
+							System.out.println( enemy.getName() + " landed a critical counter-attack and dealt " + (int)(damage * 10)/10 + " damage!" );
+						}
+						return (int)(damage * 10)/10;
+					} else {
+						damage = counterAttackDamage( enemy.getStrength() ) - counterBlockedDamage();
+						if( damage <= 0 ) {
+							System.out.println( enemy.getName() + " landed a counter-attack but it didn't deal any damage!" );
+						} else {
+							System.out.println( enemy.getName() + " landed a counter-attack and dealt " + (int)(damage * 10)/10 + " damage!" );
+						}
+						return (int)(damage * 10)/10;
+					}
+				}
+			}
 			
 			//Calculations for attack sequence.  outputs: ( damage done, dodged?, damage received, dodged? )
-			public double[] attack( double myStrength, double myDefense, double myAgility,
-									double enemyStrength, double enemyDefense, double enemyAgility ) {
-				
-				double[] damage = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-				
-				//Calculation of damage done and counter-attack damage
-				//Is the attack a critical hit?
-				if( isCritChance() ) {
-					//Damage done during a critical hit
-					damage[0] = critAttackDamage() - critBlockedDamage( enemyDefense );
-					//Was a critical hit, will be referred to for combat text
-					damage[2] = 1.0;
-				//The attack was not a critical hit
-				} else {
-					//Damage done during a regular hit
-					damage[0] = attackDamage() - blockedDamage( enemyDefense );
-				}
-				//Is the counter-attack a critical hit?
-				if( isCounterCritChance( enemyAgility ) ) {
-					//Damage done during a critical counter-attack
-					damage[3] = counterCritDamage( enemyStrength ) - counterCritBlockedDamage();
-					//Was a critical counter-attack, will referred to for combat text
-					damage[5] = 1.0;
-				//The counter-attack was not a critical hit
-				} else {
-					//Damage done during a regular counter-attack
-					damage[3] = counterAttackDamage( enemyStrength ) - counterBlockedDamage();
-				}
-				
-				//Calculates whether the enemy or you dodges the attack or counter-attack
-				//Did the enemy dodge your attack?
-				if( isDodge( enemyAgility ) ) {
-					//Yes
-					damage[1] = 1.0;
-				//No
-				} else {}
-				//Did you dodge the enemy's counter-attack?
-				if( isCounterDodge( enemyAgility ) ) {
-					//Yes
-					damage[4] = 1.0;
-				//No
-				} else {}
-				
-				return damage;
+			public void attack( Character enemy ) {
+				enemy.takeDamage( getAttackDamage( enemy ));
+				takeDamage( getCounterAttackDamage( enemy ));
 			}
 			
 			//Deals damage to enemy
@@ -179,6 +190,13 @@ public class rpgFirst {
 				return myMaxHealth;
 			}
 			
+			public String getName() {
+				return myName;
+			}
+			public void setName( String name ) {
+				myName = name;
+			}
+			
 			//Tests whether the enemy is dead
 			public boolean deadTest() {
 				if( getHealth() <= 0 ) {
@@ -191,62 +209,18 @@ public class rpgFirst {
 		
 		class Hero extends Character{
 			
-			Hero( double strength, double defense, double agility ){
-				super( strength, defense, agility );
+			Hero( String name, double strength, double defense, double agility ){
+				super( name, strength, defense, agility );
 				myStrength = strength;
 				myDefense = defense;
 				myAgility = agility;
+				myName = name;
 			}
 			
-			public boolean fight( Character s ) {
-				while( !deadTest() && !s.deadTest() ) {	
-					double[] duel = attack( myStrength, myDefense, myAgility, s.getStrength(), s.getDefense(), s.getAgility() );
-					if( duel[2] == 1.0 ) {
-						if( !(duel[1] == 1.0) ) {
-							if( ((int)(10*duel[0]))/10 <= 0 ) {
-								System.out.println( "You landed a critical hit but didn't deal any damage!" );
-							} else {
-								System.out.println("You landed a critical hit and dealt " + ((int)(10*duel[0]))/10 + " damage!");
-								s.takeDamage( ((int)(10*duel[0]))/10 );
-							}
-						} else {
-							System.out.println("You missed a critical hit and didn't deal any damage.");
-						}
-					} else {
-						if( !(duel[1] == 1.0) ) {
-							if( ((int)(10*duel[0]))/10 <= 0) {
-								System.out.println( "You lnaded a hit but didn't deal any damage!" );
-							} else {
-								System.out.println("You landed a hit and dealt " + ((int)(10*duel[0]))/10 + " damage!");
-								s.takeDamage( ((int)(10*duel[0]))/10 );
-							}
-						} else {
-							System.out.println("You missed and didn't deal any damage.");
-						}
-					}
-					if( duel[5] == 1.0 ) {
-						if( !(duel[4] == 1.0) ) {
-							if( ((int)(10*duel[3]))/10 <= 0 ) {
-								System.out.println( "Your enemy landed a critical counter-attack but didn't deal any damage!");
-							} else {
-								System.out.println("Your enemy landed a critical counter-attack and dealt " + ((int)(10*duel[3]))/10 + " damage!");
-								takeDamage( ((int)(10*duel[3]))/10 );
-							}
-						} else {
-							System.out.println("Your enemy missed their critical counter-attack and didn't deal any damage.");
-						}
-					} else {
-						if( !(duel[4] == 1.0) ) {
-							if( ((int)(10*duel[3]))/10 <= 0 ) {
-								System.out.println("Your enemy landed a counter-attack but didn't deal any damage!");
-							} else {
-								System.out.println("Your enemy landed a counter-attack and dealt " + ((int)(10*duel[3]))/10 + " damage!");
-								takeDamage( ((int)(10*duel[3]))/10 );
-							}
-						} else {
-							System.out.println("Your enemy missed their counter-attack and didn't deal any damage.");
-						}
-					}
+			public boolean fight( Hero hero, Character enemy ) {
+				while( !deadTest() && !enemy.deadTest() ) {	
+					attack( enemy );
+					
 					System.out.println("");
 					try {
 			            Thread.sleep(3000);
@@ -255,69 +229,22 @@ public class rpgFirst {
 			        }
 					if( deadTest() ) {
 						return false;
-					} else if( !deadTest() && s.deadTest() ) {
+					} else if( !deadTest() && enemy.deadTest() ) {
 						return true;
 					}
 					
-					duel = s.attack( s.getStrength(), s.getDefense(), s.getAgility(), myStrength, myDefense, myAgility );
-					if( duel[2] == 1.0 ) {
-						if( !(duel[1] == 1.0) ) {
-							if( (int)(10*duel[0])/10 <= 0.0 ){
-								System.out.println("Your enemy landed a critical hit but didn't deal any damage!");
-							} else {
-								System.out.println("Your enemy landed a critical hit and dealt " + ((int)(10*duel[0]))/10 + " damage!");
-								takeDamage( ((int)(10*duel[0]))/10 );
-							}
-						} else {
-							System.out.println("Your enemy missed a critical hit and didn't deal any damage.");
-						}
-					} else {
-						if( !(duel[1] == 1.0) ) {
-							if( (int)(10*duel[0])/10 <= 0.0 ){
-								System.out.println("Your enemy landed a hit but didn't deal any damage!");
-							} else {
-								System.out.println("Your enemy landed a hit and dealt " + ((int)(10*duel[0]))/10 + " damage!");
-								takeDamage( ((int)(10*duel[0]))/10 );
-							}
-						} else {
-							System.out.println("Your enemy missed and didn't deal any damage.");
-						}
-					}
-					if( duel[5] == 1.0 ) {
-						if( !(duel[4] == 1.0) ) {
-							if( (int)(10*duel[3])/10 <= 0.0 ){
-								System.out.println("You landed a critical counter-attack but didn't deal any damage!");
-							} else {
-								System.out.println("You landed a critical counter-attack and dealt " + ((int)(10*duel[3]))/10 + " damage!");
-								s.takeDamage( ((int)(10*duel[3]))/10 );
-							}
-						} else {
-							System.out.println("You missed your critical counter-attack and didn't deal any damage.");
-						}
-					} else {
-						if( !(duel[4] == 1.0) ) {
-							if( (int)(10*duel[3])/10 <= 0.0 ){
-								System.out.println("You landed a counter-attack but didn't deal any damage!");
-							} else {
-								System.out.println("You landed a counter-attack and dealt " + ((int)(10*duel[3]))/10 + " damage!");
-								s.takeDamage( ((int)(10*duel[3]))/10 );
-							}
-						} else {
-							System.out.println("You missed your counter-attack and didn't deal any damage.");
-						}
-					}
+					enemy.attack( hero );
+					
 					System.out.println("");
 					try {
 			            Thread.sleep(3000);
 			        } catch (InterruptedException e) {
 			            e.printStackTrace();
 			        }
-					
 				}
-				
-				if( deadTest() && !s.deadTest() ) {
+				if( deadTest() && !enemy.deadTest() ) {
 					return false;
-				} else if( !deadTest() && s.deadTest() ) {
+				} else if( !deadTest() && enemy.deadTest() ) {
 					return true;
 				} else {
 					return false;
@@ -403,6 +330,39 @@ public class rpgFirst {
 			}
 		}
 		
+		class Paladin extends Hero{
+			
+			Paladin( String name, double strength, double defense, double agility ){
+				super( name, strength, defense, agility );
+				myStrength = 45;
+				myDefense = 60;
+				myAgility = 25;
+				myName = name;
+			}
+		}
+
+		class Warrior extends Hero{
+			
+			Warrior( String name, double strength, double defense, double agility ){
+				super( name, strength, defense, agility );
+				myStrength = 55;
+				myDefense = 45;
+				myAgility = 30;
+				myName = name;
+			}
+		}
+		
+		class Assassin extends Hero{
+			
+			Assassin( String name, double strength, double defense, double agility ){
+				super( name, strength, defense, agility );
+				myStrength = 50;
+				myDefense = 30;
+				myAgility = 50;
+				myName = name;
+			}
+		}
+		
 		Hero hero1;
 		
 		//Start screen
@@ -424,29 +384,44 @@ public class rpgFirst {
         	command = in.nextLine();
         }
         if( (command.toLowerCase()).equals("w") || (command.toLowerCase()).equals("warrior") ) {
-        	System.out.println( "\nYou have selected warrior!  Please name you character!" );
-        	hero1 = new Hero( 55, 45, 30 );
         	command = in.nextLine();
+        	while( command.length() <= 1 || command.length() > 36 ) {
+            	System.out.println( "Please select a character name with a valid number of characters (2-36)");
+            	command = in.nextLine();
+        	}
+        	hero1 = new Warrior( command, 0, 0, 0 );
+            System.out.println( "\n" + hero1.getName() + " has been created!" );
+    		System.out.println( "--------------------" );
+    		System.out.println( "Strength: " + hero1.getStrength() );
+    		System.out.println( "Defense: " + hero1.getDefense() );
+    		System.out.println( "Agility: " +hero1.getAgility() );
         } else if( (command.toLowerCase()).equals("p") || (command.toLowerCase()).equals("paladin") ) {
         	System.out.println( "\nYou have selected paladin!  Please name you character!" );
-        	hero1 = new Hero( 45, 60, 25 );
         	command = in.nextLine();
+        	while( command.length() <= 1 || command.length() > 36 ) {
+            	System.out.println( "Please select a character name with a valid number of characters (2-36)");
+            	command = in.nextLine();
+            }
+        	hero1 = new Paladin( command, 0, 0, 0 );
+            System.out.println( "\n" + hero1.getName() + " has been created!" );
+    		System.out.println( "--------------------" );
+    		System.out.println( "Strength: " + hero1.getStrength() );
+    		System.out.println( "Defense: " + hero1.getDefense() );
+    		System.out.println( "Agility: " +hero1.getAgility() );
         } else {
         	System.out.println( "\nYou have selected assassin!  Please name you character!" );
-        	hero1 = new Hero( 50, 30, 50 );
         	command = in.nextLine();
+        	while( command.length() <= 1 || command.length() > 36 ) {
+            	System.out.println( "Please select a character name with a valid number of characters (2-36)");
+            	command = in.nextLine();
+            }
+        	hero1 = new Assassin( command, 0, 0, 0 );
+            System.out.println( "\n" + hero1.getName() + " has been created!" );
+    		System.out.println( "--------------------" );
+    		System.out.println( "Strength: " + hero1.getStrength() );
+    		System.out.println( "Defense: " + hero1.getDefense() );
+    		System.out.println( "Agility: " +hero1.getAgility() );
         }
-        
-        while( command.length() <= 1 || command.length() > 36 ) {
-        	System.out.println( "Please select a character name with a valid number of characters (2-36)");
-        	command = in.nextLine();
-        }
-        
-        System.out.println( "\n" + command + " has been created!" );
-		System.out.println( "--------------------" );
-		System.out.println( "Strength: " + hero1.getStrength() );
-		System.out.println( "Defense: " + hero1.getDefense() );
-		System.out.println( "Agility: " +hero1.getAgility() );
 
 		pressEnterToContinue();
 		
@@ -485,13 +460,13 @@ public class rpgFirst {
         	
         	pressEnterToContinue();
         	
-        	Character goblin = new Character( 16.0, 8.0, 2.0 );
+        	Character goblin = new Character( "The goblin", 16.0, 8.0, 2.0 );
         	
         	System.out.println("\nYou have now engaged in combat with a goblin! (100 hit points)\n");
             
         	pressEnterToContinue();
             
-            if( hero1.fight( goblin )) {
+            if( hero1.fight( hero1, goblin )) {
             	System.out.println("You defeated the goblin!");
             } else {
             	System.out.println("You died! Game over.");
@@ -611,13 +586,13 @@ public class rpgFirst {
             
             pressEnterToContinue();
             
-            Character bandit = new Character( 30.0, 20.0, 20.0 );
+            Character bandit = new Character( "The bandit", 30.0, 20.0, 20.0 );
         	
         	System.out.println("\nYou have now engaged in combat with the bandit! (100 hit points)\n");
             
         	pressEnterToContinue();
             
-            if( hero1.fight( bandit )) {
+            if( hero1.fight( hero1, bandit )) {
             	System.out.println("You defeated the bandit!");
             } else {
             	System.out.println("You died!  Game over.");
