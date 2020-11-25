@@ -5,14 +5,15 @@ public class rpgFirst {
 	
 	public static void main( String args[] ) {
 		
-		class Enemy{
-			private double myMaxHealth = 100;
-			private double myHealth = 100;
-			private double myStrength;
-			private double myDefense;
-			private double myAgility;
+		class Character{
 			
-			public Enemy( double strength, double defense, double agility ) {
+			public double myMaxHealth = 100;
+			public double myHealth = 100;
+			public double myStrength;
+			public double myDefense;
+			public double myAgility;
+			
+			public Character( double strength, double defense, double agility ) {
 				myStrength = strength;
 				myDefense = defense;
 				myAgility = agility;
@@ -85,20 +86,16 @@ public class rpgFirst {
 			}
 		}
 		
-		class Character{
-			private double myMaxHealth = 100;
-			private double myHealth = 100;
-			private double myStrength;
-			private double myDefense;
-			private double myAgility;
+		class Hero extends Character{
 			
-			public Character( double strength, double defense, double agility ) {
+			Hero( double strength, double defense, double agility ){
+				super( strength, defense, agility );
 				myStrength = strength;
 				myDefense = defense;
 				myAgility = agility;
 			}
 			
-			public boolean fight( Enemy s ) {
+			public boolean fight( Character s ) {
 				while( !deadTest() && !s.deadTest() ) {	
 					double[] duel = attack( myStrength, myDefense, myAgility, s.getStrength(), s.getDefense(), s.getAgility() );
 					if( duel[2] == 1.0 ) {
@@ -224,62 +221,6 @@ public class rpgFirst {
 				}
 			}
 			
-			//Calculations for attack sequence.  outputs: ( damage done, dodged?, damage received, dodged? )
-			public double[] attack( double myStrength, double myDefense, double myAgility,  double eStrength, double eDefense, double eAgility ) {
-				double[] damage = new double[6];
-				damage = new double[] { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-				
-				//Calculation of damage done and counter-attack damage... considers critical strike chance
-				if( Math.random()*(100 - myAgility) < 5 ) {
-					damage[0] = (Math.random()*.75*myStrength + .75*myStrength) - (.125*eDefense + (Math.random()*.125*eDefense));
-					damage[2] = 1.0;
-				} else {
-					damage[0] = (.5*myStrength + Math.random()*.5*myStrength) - (.25*eDefense + Math.random()*.25*eDefense);
-				}
-				if( Math.random()*(100 - eAgility + myAgility) < 4 ) {
-					damage[3] = (.35*eStrength + Math.random()*.35*eStrength) - (.15*myDefense + Math.random()*.15*myDefense);
-					damage[5] = 1.0;
-				} else {
-					damage[3] = (.15*eStrength + Math.random()*.15*eStrength) - (.05*myDefense + Math.random()*.05*myDefense);
-				}
-				
-				//Calculates whether the enemy or you dodges the attack or counter-attack
-				if( Math.random()*(100 + myAgility - 2*eAgility) < 5 ) {
-					damage[1] = 1.0;
-				} else {
-					damage[1] = 0.0;
-				}
-				if( Math.random()*(100 - 5*myAgility + eAgility) < 5 ) {
-					damage[4] = 1.0;
-				} else {
-					damage[4] = 0.0;
-				}
-				
-				return damage;
-			}
-			
-			//Deals damage to character
-			public void takeDamage( double damage ) {
-				myHealth += -damage;
-			}
-			
-			//Access character statistics
-			public double getStrength() {
-				return myStrength;
-			}
-			public double getDefense() {
-				return myDefense;
-			}
-			public double getAgility() {
-				return myAgility;
-			}
-			public double getHealth() {
-				return myHealth;
-			}
-			public double getMaxHealth() {
-				return myMaxHealth;
-			}
-			
 			//Level up text prompts
 			public void levelUpInitial() {
 				System.out.println("\nYour hero has leveled up and earned two skill points!  Please select the first characteristic to level up in!");
@@ -359,7 +300,7 @@ public class rpgFirst {
 			}
 		}
 		
-		Character hero1;
+		Hero hero1;
 		
 		//Start screen
 		System.out.println( "Welcome to your quest!  Please select a character to quest with! (Respond with 'W', 'P', or 'A')" );
@@ -381,15 +322,15 @@ public class rpgFirst {
         }
         if( (command.toLowerCase()).equals("w") || (command.toLowerCase()).equals("warrior") ) {
         	System.out.println( "\nYou have selected warrior!  Please name you character!" );
-        	hero1 = new Character( 55, 45, 30 );
+        	hero1 = new Hero( 55, 45, 30 );
         	command = in.nextLine();
         } else if( (command.toLowerCase()).equals("p") || (command.toLowerCase()).equals("paladin") ) {
         	System.out.println( "\nYou have selected paladin!  Please name you character!" );
-        	hero1 = new Character( 45, 60, 25 );
+        	hero1 = new Hero( 45, 60, 25 );
         	command = in.nextLine();
         } else {
         	System.out.println( "\nYou have selected assassin!  Please name you character!" );
-        	hero1 = new Character( 50, 30, 50 );
+        	hero1 = new Hero( 50, 30, 50 );
         	command = in.nextLine();
         }
         
@@ -449,7 +390,7 @@ public class rpgFirst {
                 e.printStackTrace();
             }
         	
-        	Enemy goblin = new Enemy( 16.0, 8.0, 2.0 );
+        	Character goblin = new Character( 16.0, 8.0, 2.0 );
         	
         	System.out.println("\nYou have now engaged in combat with a goblin! (100 hit points)\n");
             
@@ -598,7 +539,7 @@ public class rpgFirst {
                 e.printStackTrace();
             }
             
-            Enemy bandit = new Enemy( 30.0, 20.0, 20.0 );
+            Character bandit = new Character( 30.0, 20.0, 20.0 );
         	
         	System.out.println("\nYou have now engaged in combat with the bandit! (100 hit points)\n");
             
